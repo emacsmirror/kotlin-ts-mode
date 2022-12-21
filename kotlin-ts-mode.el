@@ -7,6 +7,25 @@
 (require 'tree-sitter-hl)
 (require 'tree-sitter-indent)
 
+(defvar kotlin-mode-syntax-table
+  (let ((st (make-syntax-table)))
+
+    ;; Strings
+    (modify-syntax-entry ?\" "\"" st)
+    (modify-syntax-entry ?\' "\"" st)
+    (modify-syntax-entry ?` "\"" st)
+
+    ;; `_' and `@' as being a valid part of a symbol
+    (modify-syntax-entry ?_ "_" st)
+    (modify-syntax-entry ?@ "_" st)
+
+    ;; b-style comment
+    (modify-syntax-entry ?/ ". 124b" st)
+    (modify-syntax-entry ?* ". 23n" st)
+    (modify-syntax-entry ?\n "> b" st)
+    (modify-syntax-entry ?\r "> b" st)
+    st))
+
 (defconst kotlin-ts-mode-tree-sitter-patterns
   [
 
@@ -104,15 +123,7 @@
 (defvar kotlin-indent-offset 4 "How far to indent in `kotlin-mode'.")
 
 (defconst tree-sitter-indent-kotlin-scopes
-  '((indent-body . (
-                    anonymous_initializer
-                    catch_block
-                    control_structure_body
-                    finally_block
-                    function_body
-                    lambda_literal
-                    try_expression
-                    when_expression)))
+  '((indent-body . (block)))
   )
 
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
