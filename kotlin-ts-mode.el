@@ -1,14 +1,13 @@
 ;;; kotlin-ts-mode.el --- A mode for editing Kotlin files based on tree-sitter
 
 ;; Author: Alex Figl-Brick <alex@alexbrick.me>
-;; Package-Requires: ((tree-sitter) (tree-sitter-indent))
+;; Package-Requires: ((emacs "29"))
 
 ;;; Commentary:
 
 ;;; Code:
 
-(require 'tree-sitter-hl)
-(require 'tree-sitter-indent)
+(require 'treesit)
 
 (defvar kotlin-mode-syntax-table
   (let ((st (make-syntax-table)))
@@ -29,408 +28,203 @@
     (modify-syntax-entry ?\r "> b" st)
     st))
 
-;; Taken from https://github.com/fwcd/tree-sitter-kotlin/pull/50
-;; Updated to match Emacs style
-(defconst kotlin-ts-mode-tree-sitter-patterns
-  [
-;;; Identifiers
+;; Based on https://github.com/fwcd/tree-sitter-kotlin/pull/50
+(defvar kotlin--treesit-settings
+  (treesit-font-lock-rules
+   :language 'kotlin
+   :feature 'keyword
+   '(
+     ;; `it` keyword inside lambdas
+     ;; FIXME: This will highlight the keyword outside of lambdas since tree-sitter
+     ;;        does not allow us to check for arbitrary nestation
+     ((simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "it"))
 
-; `it` keyword inside lambdas
-; FIXME: This will highlight the keyword outside of lambdas since tree-sitter
-;        does not allow us to check for arbitrary nestation
-((simple_identifier) @variable.builtin
-(\.eq? @variable.builtin "it"))
+     ;; `field` keyword inside property getter/setter
+     ;; FIXME: This will highlight the keyword outside of getters and setters
+     ;;        since tree-sitter does not allow us to check for arbitrary nestation
+     ((simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "field"))
 
-; `field` keyword inside property getter/setter
-; FIXME: This will highlight the keyword outside of getters and setters
-;        since tree-sitter does not allow us to check for arbitrary nestation
-((simple_identifier) @variable.builtin
-(\.eq? @variable.builtin "field"))
+     ;; `this` this keyword inside classes
+     (this_expression "this") @font-lock-keyword-face
 
-; `this` this keyword inside classes
-(this_expression) @variable.builtin
+     ;; `super` keyword inside classes
+     (super_expression) @font-lock-keyword-face
 
-; `super` keyword inside classes
-(super_expression) @variable.builtin
+     ["val" "var" "enum" "class" "object" "interface"] @font-lock-keyword-face
 
-(class_parameter "val" @keyword)
-(class_parameter
-	(simple_identifier) @property)
+     (package_header "package" @font-lock-keyword-face)
 
-(class_body
-	(property_declaration
-		(variable_declaration
-			(simple_identifier) @property)))
+     (import_header "import" @font-lock-keyword-face)
 
-; id_1.id_2.id_3: `id_2` and `id_3` are assumed as object properties
-(_
-	(navigation_suffix
-		(simple_identifier) @property))
+     (type_alias "typealias" @font-lock-keyword-face)
+     [
+      (class_modifier)
+      (member_modifier)
+      (function_modifier)
+      (property_modifier)
+      (platform_modifier)
+      (variance_modifier)
+      (parameter_modifier)
+      (visibility_modifier)
+      (reification_modifier)
+      (inheritance_modifier)
+      ] @font-lock-keyword-face
 
-(enum_entry
-	(simple_identifier) @constant)
+     (function_declaration "fun" @font-lock-keyword-face)
 
-(type_identifier) @type
+     (jump_expression ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @font-lock-keyword-face)
 
-((type_identifier) @type.builtin
-	(\.any-of? @type.builtin
-		"Byte"
-		"Short"
-		"Int"
-		"Long"
-		"UByte"
-		"UShort"
-		"UInt"
-		"ULong"
-		"Float"
-		"Double"
-		"Boolean"
-		"Char"
-		"String"
-		"Array"
-		"ByteArray"
-		"ShortArray"
-		"IntArray"
-		"LongArray"
-		"UByteArray"
-		"UShortArray"
-		"UIntArray"
-		"ULongArray"
-		"FloatArray"
-		"DoubleArray"
-		"BooleanArray"
-		"CharArray"
-		"Map"
-		"Set"
-		"List"
-		"EmptyMap"
-		"EmptySet"
-		"EmptyList"
-		"MutableMap"
-		"MutableSet"
-		"MutableList"
-))
+     ["if" "else" "when"] @font-lock-keyword-face
 
-(package_header
- "package" @keyword
-	(identifier))
+     ["for" "do" "while"] @font-lock-keyword-face
 
-(import_header
-	"import" @keyword)
+     ["try" "catch" "throw" "finally"] @font-lock-keyword-face
 
+     (type_test "is" @font-lock-keyword-face)
 
-; TODO: Seperate labeled returns/breaks/continue/super/this
-;       Must be implemented in the parser first
-(label) @label
+     (prefix_expression "!" @font-lock-negation-char-face)
+     )
 
-;;; Function definitions
+   :language 'kotlin
+   :feature 'comment
+   '(
+     [(comment) (shebang_line)] @font-lock-comment-face
+     )
 
-(function_declaration
-	\. (simple_identifier) @function)
+   :language 'kotlin
+   :feature 'string
+   '(
+     (character_literal) @font-lock-string-face
+     [(line_string_literal) (multi_line_string_literal)] @font-lock-string-face
+     )
 
-(getter
-	("get") @function.builtin)
-(setter
-	("set") @function.builtin)
+   :language 'kotlin
+   :feature 'definition
+   '(
+     (function_declaration (simple_identifier) @font-lock-function-name-face)
+     (parameter (simple_identifier) @font-lock-variable-name-face)
+     (class_parameter (simple_identifier) @font-lock-variable-name-face)
+     (variable_declaration (simple_identifier) @font-lock-variable-name-face)
+     )
 
-(primary_constructor) @constructor
-(secondary_constructor
-	("constructor") @constructor)
+   :language 'kotlin
+   :feature 'number
+   '(
+     [(integer_literal) (long_literal) (hex_literal) (bin_literal) (unsigned_literal) (real_literal)] @font-lock-number-face
+     )
 
-(constructor_invocation
-	(user_type
-		(type_identifier) @constructor))
+   :language 'kotlin
+   :feature 'type
+   '(
+     (type_identifier) @font-lock-type-face
+     (call_expression (simple_identifier) @font-lock-type-face
+                      (:match "^[A-Z]" @font-lock-type-face))
+     )
 
-(anonymous_initializer
-	("init") @constructor)
-
-(parameter
-	(simple_identifier) @variable.parameter)
-
-(parameter_with_optional_type
-	(simple_identifier) @variable.parameter)
-
-; lambda parameters
-(lambda_literal
-	(lambda_parameters
-		(variable_declaration
-			(simple_identifier) @variable.parameter)))
-
-;;; Function calls
-
-; function()
-(call_expression
-	\. (simple_identifier) @function.call)
-
-; object.function() or object.property.function()
-(call_expression
-	(navigation_expression
-		(navigation_suffix
-			(simple_identifier) @method.call) \. ))
-
-(call_expression
-	\. (simple_identifier) @function.builtin
-    (\.any-of? @function.builtin
-		"arrayOf"
-		"arrayOfNulls"
-		"byteArrayOf"
-		"shortArrayOf"
-		"intArrayOf"
-		"longArrayOf"
-		"ubyteArrayOf"
-		"ushortArrayOf"
-		"uintArrayOf"
-		"ulongArrayOf"
-		"floatArrayOf"
-		"doubleArrayOf"
-		"booleanArrayOf"
-		"charArrayOf"
-		"emptyArray"
-		"mapOf"
-		"setOf"
-		"listOf"
-		"emptyMap"
-		"emptySet"
-		"emptyList"
-		"mutableMapOf"
-		"mutableSetOf"
-		"mutableListOf"
-		"print"
-		"println"
-		"error"
-		"TODO"
-		"run"
-		"runCatching"
-		"repeat"
-		"lazy"
-		"lazyOf"
-		"enumValues"
-		"enumValueOf"
-		"assert"
-		"check"
-		"checkNotNull"
-		"require"
-		"requireNotNull"
-		"with"
-		"suspend"
-		"synchronized"
-))
-
-;;; Literals
-
-[
-	(comment)
-	(shebang_line)
-] @comment
-
-(real_literal) @number
-[
-	(integer_literal)
-	(long_literal)
-	(hex_literal)
-	(bin_literal)
-	(unsigned_literal)
-] @number
-
-[
-	"null" ; should be highlighted the same as booleans
-	(boolean_literal)
-] @type.builtin
-
-(character_literal) @string
-
-[
-	(line_string_literal)
-	(multi_line_string_literal)
-] @string
-
-; NOTE: Escapes not allowed in multi-line strings
-(line_string_literal (character_escape_seq) @escape)
-
-; There are 3 ways to define a regex
-;    - "[abc]?".toRegex()
-(call_expression
-	(navigation_expression
-		([(line_string_literal) (multi_line_string_literal)] @string.special)
-		(navigation_suffix
-			((simple_identifier) @_function
-			(\.eq? @_function "toRegex")))))
-
-;    - Regex("[abc]?")
-(call_expression
-	((simple_identifier) @_function
-	(\.eq? @_function "Regex"))
-	(call_suffix
-		(value_arguments
-			(value_argument
-				[ (line_string_literal) (multi_line_string_literal) ] @string.special))))
-
-;    - Regex.fromLiteral("[abc]?")
-(call_expression
-	(navigation_expression
-		((simple_identifier) @_class
-		(\.eq? @_class "Regex"))
-		(navigation_suffix
-			((simple_identifier) @_function
-			(\.eq? @_function "fromLiteral"))))
-	(call_suffix
-		(value_arguments
-			(value_argument
-				[ (line_string_literal) (multi_line_string_literal) ] @string.special))))
-
-;;; Keywords
-
-(type_alias "typealias" @keyword)
-[
-	(class_modifier)
-	(member_modifier)
-	(function_modifier)
-	(property_modifier)
-	(platform_modifier)
-	(variance_modifier)
-	(parameter_modifier)
-	(visibility_modifier)
-	(reification_modifier)
-	(inheritance_modifier)
-]@keyword
-
-[
-	"val"
-	"var"
-	"enum"
-	"class"
-	"object"
-	"interface"
-;	"typeof" ; NOTE: It is reserved for future use
-] @keyword
-
-("fun") @keyword
-
-(jump_expression
- ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @keyword)
-
-[
-	"if"
-	"else"
-	"when"
-] @keyword
-
-[
-	"for"
-	"do"
-	"while"
-] @keyword
-
-[
-	"try"
-	"catch"
-	"throw"
-	"finally"
-] @keyword
+   :language 'kotlin
+   :feature 'constant
+   '(
+     ["null" (boolean_literal)] @font-lock-constant-face
+     )
 
 
-(annotation
-	"@" @attribute (use_site_target) @attribute)
-(annotation
-	(user_type
-		(type_identifier) @attribute))
-(annotation
-	(constructor_invocation
-		(user_type
-			(type_identifier) @attribute)))
-
-(file_annotation
-	"@" @attribute "file" @attribute ":" @attribute)
-(file_annotation
-	(user_type
-		(type_identifier) @attribute))
-(file_annotation
-	(constructor_invocation
-		(user_type
-			(type_identifier) @attribute)))
-
-;;; Operators & Punctuation
-
-[
-	"!"
-	"!="
-	"!=="
-	"="
-	"=="
-	"==="
-	">"
-	">="
-	"<"
-	"<="
-	"||"
-	"&&"
-	"+"
-	"++"
-	"+="
-	"-"
-	"--"
-	"-="
-	"*"
-	"*="
-	"/"
-	"/="
-	"%"
-	"%="
-	"?."
-	"?:"
-	"!!"
-	"is"
-	"!is"
-	"in"
-	"!in"
-	"as"
-	"as?"
-	".."
-	"->"
-] @operator
-
-[
-	"(" ")"
-	"[" "]"
-	"{" "}"
-] @punctuation.bracket
-
-[
-	"."
-	","
-	";"
-	":"
-	"::"
-] @punctuation.delimiter
-
-; NOTE: `interpolated_identifier`s can be highlighted in any way
-(line_string_literal
-	"$" @punctuation.special
-	(interpolated_identifier) @none)
-(line_string_literal
-	"${" @punctuation.special
-	(interpolated_expression) @none
-	"}" @punctuation.special)
-
-(multi_line_string_literal
-    "$" @punctuation.special
-    (interpolated_identifier) @none)
-(multi_line_string_literal
-	"${" @punctuation.special
-	(interpolated_expression) @none
-	"}" @punctuation.special)
-
-   ]
-  )
-
-(defvar kotlin-ts-indent-offset 4 "How far to indent in `kotlin-mode'.")
-
-(defconst tree-sitter-indent-kotlin-ts-scopes
-  '((indent-body . (block)))
-  )
+   :language 'kotlin
+   :feature 'builtin
+   '(
+     (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "listOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "arrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "arrayOfNulls"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "byteArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "shortArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "intArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "longArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "ubyteArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "ushortArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "uintArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "ulongArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "floatArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "doubleArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "booleanArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "charArrayOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "emptyArray"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "mapOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "setOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "listOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "emptyMap"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "emptySet"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "emptyList"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "mutableMapOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "mutableSetOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "mutableListOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "print"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "println"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "error"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "TODO"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "run"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "runCatching"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "repeat"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "lazy"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "lazyOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "enumValues"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "enumValueOf"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "assert"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "check"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "checkNotNull"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "require"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "requireNotNull"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "with"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "suspend"))
+	 (call_expression (simple_identifier) @font-lock-builtin-face
+                      (:equal @font-lock-builtin-face "synchronized"))
+     ))
+   )
 
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
+  (treesit-parser-create 'kotlin)
 
   (setq-local comment-start "//"
               comment-padding 1
@@ -438,17 +232,15 @@
               comment-end "")
 
   ;; Syntax Highlighting
-  (setq-local tree-sitter-hl-default-patterns kotlin-ts-mode-tree-sitter-patterns)
-  (tree-sitter-hl-mode)
+  (setq-local treesit-font-lock-settings kotlin--treesit-settings)
+  (setq-local treesit-font-lock-feature-list '((comment number string definition)
+                                               (class-name keyword builtin type constant)
+                                               (string-interpolation decorator)))
 
-  ;; Indentation
-  (setq-local indent-line-function #'tree-sitter-indent-line)
-  (tree-sitter-indent-mode)
+  (treesit-major-mode-setup)
 
   :syntax-table kotlin-mode-syntax-table
   )
-
-(add-to-list 'tree-sitter-major-mode-language-alist '(kotlin-ts-mode . kotlin))
 
 (provide 'kotlin-ts-mode)
 ;;; kotlin-ts-mode.el ends here
