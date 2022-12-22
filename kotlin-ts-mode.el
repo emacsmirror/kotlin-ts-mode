@@ -32,8 +32,6 @@
   [
 ;;; Identifiers
 
-(simple_identifier) @variable
-
 ; `it` keyword inside lambdas
 ; FIXME: This will highlight the keyword outside of lambdas since tree-sitter
 ;        does not allow us to check for arbitrary nestation
