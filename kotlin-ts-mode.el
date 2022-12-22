@@ -1,5 +1,8 @@
 ;;; kotlin-ts-mode.el --- A mode for editing Kotlin files based on tree-sitter
 
+;; Author: Alex Figl-Brick <alex@alexbrick.me>
+;; Package-Requires: ((tree-sitter) (tree-sitter-indent))
+
 ;;; Commentary:
 
 ;;; Code:
