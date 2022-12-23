@@ -70,13 +70,14 @@
       (inheritance_modifier)
       ] @font-lock-keyword-face
 
+     (companion_object "companion" @font-lock-keyword-face)
      (function_declaration "fun" @font-lock-keyword-face)
 
      (jump_expression ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @font-lock-keyword-face)
 
      ["if" "else" "when"] @font-lock-keyword-face
 
-     ["for" "do" "while"] @font-lock-keyword-face
+     ["for" "do" "while" "in"] @font-lock-keyword-face
 
      ["try" "catch" "throw" "finally"] @font-lock-keyword-face
 
