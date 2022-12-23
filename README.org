@@ -1,0 +1,52 @@
+A major mode for [[https://kotlinlang.org/][Kotlin]], based on the built-in support for [[https://tree-sitter.github.io/tree-sitter/][tree-sitter]] that was added in Emacs 29.
+
+* Install
+
+** Grammar
+In order to use ~tree-sitter~, you must have a grammar for the language. In this case, that is [[https://github.com/fwcd/tree-sitter-kotlin][tree-sitter-kotlin]].
+
+#+BEGIN_SRC shell
+  git clone git@github.com:fwcd/tree-sitter-kotlin.git
+  cd tree-sitter-kotlin
+  cc -shared -fPIC -g -O2 -I src src/scanner.c src/parser.c -o libtree-sitter-kotlin.so
+#+END_SRC
+
+You must then either copy ~libtree-sitter-kotlin.so~ into your library location (probably ~/usr/local/lib~) or you must add the directory to your ~treesit-extra-load-path~ variable:
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'treesit-extra-load-path "/path/to/tree-sitter-kotlin")
+#+END_SRC
+
+** Major Mode
+First, make sure that your Emacs is compiled with ~tree-sitter~ support:
+#+BEGIN_SRC emacs-lisp
+  (treesit-available-p) ; should return t
+#+END_SRC
+
+Then just install this package!
+
+*** Raw Emacs
+Clone this repository somewhere on your machine.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "/path/to/emacs-kotlin-ts-mode")
+  (require 'kotlin-ts-mode)
+  (add-to-list 'auto-mode-alist '("\\.kt\\'" . kotlin-ts-mode)) ; if you want this mode to be auto-enabled
+#+END_SRC
+
+*** straight.el
+#+BEGIN_SRC emacs-lisp
+  (use-package kotlin-ts-mode
+    :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+    :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
+    )
+#+END_SRC
+
+* Integration with other packages
+** ~lsp-mode~
+You will be unable to use ~lsp-mode~ with the published version. Until that is fixed, you can use [[https://github.com/bricka/lsp-mode][my fork]] instead.  The easiest way is if you are using straight.el:
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :straight (:fork "bricka")
+    )
+#+END_SRC
