@@ -229,11 +229,13 @@
   (let ((offset kotlin-ts-indent-offset))
     `((kotlin
        ((node-is "}") parent-bol 0)
+       ((node-is ")") parent-bol 0)
        ((parent-is "statements") parent-bol 0)
        ((parent-is "class_body") parent-bol ,offset)
        ((parent-is "control_structure_body") parent-bol ,offset)
        ((parent-is "function_body") parent-bol ,offset)
        ((parent-is "lambda_literal") parent-bol ,offset)
+       ((parent-is "value_arguments") parent-bol ,offset)
        ))))
 
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
