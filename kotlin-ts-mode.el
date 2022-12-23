@@ -255,7 +255,6 @@
 
   (setq-local comment-start "//"
               comment-padding 1
-              comment-start-skip "\\(//+\\|/\\*+\\)\\s *"
               comment-end "")
 
   ;; Syntax Highlighting
