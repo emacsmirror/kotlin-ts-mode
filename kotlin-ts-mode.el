@@ -9,6 +9,8 @@
 
 (require 'treesit)
 
+(defvar kotlin-ts-indent-offset 4)
+
 (defvar kotlin-mode-syntax-table
   (let ((st (make-syntax-table)))
 
