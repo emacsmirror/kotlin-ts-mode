@@ -238,6 +238,17 @@
        ((parent-is "value_arguments") parent-bol ,offset)
        ))))
 
+(defun kotlin-ts-goto-test-file ()
+  "Go from the current file to the test file."
+  (interactive)
+  (if (not (string-match-p (regexp-quote "src/main/kotlin") (buffer-file-name)))
+      (warn "Could not find test file for %s" (buffer-file-name))
+    (let* ((test-directory (file-name-directory (string-replace "src/main/kotlin" "src/test/kotlin" (buffer-file-name))))
+           (file-name-as-test (concat (file-name-base (buffer-file-name)) "Test.kt"))
+           (test-file-location (concat test-directory file-name-as-test)))
+      (find-file test-file-location))
+    ))
+
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
   (treesit-parser-create 'kotlin)
