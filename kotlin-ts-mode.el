@@ -24,8 +24,8 @@
     (modify-syntax-entry ?@ "_" st)
 
     ;; b-style comment
-    (modify-syntax-entry ?/ ". 124b" st)
-    (modify-syntax-entry ?* ". 23n" st)
+    (modify-syntax-entry ?/ ". 124" st)
+    (modify-syntax-entry ?* ". 23b" st)
     (modify-syntax-entry ?\n "> b" st)
     (modify-syntax-entry ?\r "> b" st)
     st))
