@@ -222,6 +222,14 @@
      ))
    )
 
+(defvar kotlin-ts--treesit-indent-rules
+  (let ((offset kotlin-ts-indent-offset))
+    `((kotlin
+       ((node-is "}") parent-bol 0)
+       ((parent-is "class_body") parent-bol ,offset)
+       ((parent-is "function_body") parent-bol ,offset)
+       ))))
+
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
   (treesit-parser-create 'kotlin)
@@ -236,6 +244,9 @@
   (setq-local treesit-font-lock-feature-list '((comment number string definition)
                                                (class-name keyword builtin type constant)
                                                (string-interpolation decorator)))
+
+  ;; Indent
+  (setq-local treesit-simple-indent-rules kotlin-ts--treesit-indent-rules)
 
   (treesit-major-mode-setup)
 
