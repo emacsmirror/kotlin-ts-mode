@@ -255,7 +255,9 @@
 
   (setq-local comment-start "//"
               comment-padding 1
-              comment-end "")
+              comment-start-skip nil
+              comment-end ""
+              comment-use-syntax nil)
 
   ;; Syntax Highlighting
   (setq-local treesit-font-lock-settings kotlin--treesit-settings)
