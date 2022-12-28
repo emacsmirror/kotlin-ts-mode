@@ -237,6 +237,7 @@
        ((parent-is "function_body") parent-bol ,offset)
        ((parent-is "lambda_literal") parent-bol ,offset)
        ((parent-is "value_arguments") parent-bol ,offset)
+       ((parent-is "comment") parent-bol 1)
        ))))
 
 (defun kotlin-ts-goto-test-file ()
