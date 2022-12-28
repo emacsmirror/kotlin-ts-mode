@@ -1,4 +1,4 @@
-;;; kotlin-ts-mode.el --- A mode for editing Kotlin files based on tree-sitter
+;;; kotlin-ts-mode.el --- A mode for editing Kotlin files based on tree-sitter  -*- lexical-binding: t; -*-
 
 ;; Author: Alex Figl-Brick <alex@alexbrick.me>
 ;; Package-Requires: ((emacs "29"))
@@ -10,9 +10,9 @@
 (require 'treesit)
 (require 'c-ts-mode) ; For comment indent and filling.
 
-(defvar kotlin-ts-indent-offset 4)
+(defvar kotlin-ts-mode-indent-offset 4)
 
-(defvar kotlin-mode-syntax-table
+(defvar kotlin-ts-mode-syntax-table
   (let ((st (make-syntax-table)))
 
     ;; Strings
@@ -32,7 +32,7 @@
     st))
 
 ;; Based on https://github.com/fwcd/tree-sitter-kotlin/pull/50
-(defvar kotlin--treesit-settings
+(defconst kotlin-ts-mode--treesit-settings
   (treesit-font-lock-rules
    :language 'kotlin
    :feature 'keyword
@@ -226,8 +226,8 @@
      ))
    )
 
-(defvar kotlin-ts--treesit-indent-rules
-  (let ((offset kotlin-ts-indent-offset))
+(defconst kotlin-ts-mode--treesit-indent-rules
+  (let ((offset kotlin-ts-mode-indent-offset))
     `((kotlin
        ((node-is "}") parent-bol 0)
        ((node-is ")") parent-bol 0)
@@ -240,7 +240,7 @@
        ((parent-is "comment") parent-bol 1)
        ))))
 
-(defun kotlin-ts-goto-test-file ()
+(defun kotlin-ts-mode-goto-test-file ()
   "Go from the current file to the test file."
   (interactive)
   (if (not (string-match-p (regexp-quote "src/main/kotlin") (buffer-file-name)))
@@ -263,17 +263,17 @@
               (append "{}():;," electric-indent-chars))
 
   ;; Syntax Highlighting
-  (setq-local treesit-font-lock-settings kotlin--treesit-settings)
+  (setq-local treesit-font-lock-settings kotlin-ts-mode--treesit-settings)
   (setq-local treesit-font-lock-feature-list '((comment number string definition)
                                                (class-name keyword builtin type constant)
                                                (string-interpolation decorator)))
 
   ;; Indent
-  (setq-local treesit-simple-indent-rules kotlin-ts--treesit-indent-rules)
+  (setq-local treesit-simple-indent-rules kotlin-ts-mode--treesit-indent-rules)
 
   (treesit-major-mode-setup)
 
-  :syntax-table kotlin-mode-syntax-table
+  :syntax-table kotlin-ts-mode-syntax-table
   )
 
 (provide 'kotlin-ts-mode)
