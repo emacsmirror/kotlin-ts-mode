@@ -8,6 +8,7 @@
 ;;; Code:
 
 (require 'treesit)
+(require 'c-ts-mode) ; For comment indent and filling.
 
 (defvar kotlin-ts-indent-offset 4)
 
@@ -254,11 +255,7 @@
   (treesit-parser-create 'kotlin)
 
   ;; Comments
-  (setq-local comment-start "//"
-              comment-padding 1
-              comment-start-skip nil
-              comment-end ""
-              comment-use-syntax nil)
+  (c-ts-mode-comment-setup)
 
   ;; Electric
   (setq-local electric-indent-chars
