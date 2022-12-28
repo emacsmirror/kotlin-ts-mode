@@ -41,12 +41,3 @@ Clone this repository somewhere on your machine.
     :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
     )
 #+END_SRC
-
-* Integration with other packages
-** ~lsp-mode~
-You will be unable to use ~lsp-mode~ with the published version. Until that is fixed, you can use [[https://github.com/bricka/lsp-mode][my fork]] instead.  The easiest way is if you are using straight.el:
-#+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :straight (:fork "bricka")
-    )
-#+END_SRC
