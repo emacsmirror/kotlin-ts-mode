@@ -253,11 +253,16 @@
   "Major mode for editing Kotlin using tree-sitter."
   (treesit-parser-create 'kotlin)
 
+  ;; Comments
   (setq-local comment-start "//"
               comment-padding 1
               comment-start-skip nil
               comment-end ""
               comment-use-syntax nil)
+
+  ;; Electric
+  (setq-local electric-indent-chars
+              (append "{}():;," electric-indent-chars))
 
   ;; Syntax Highlighting
   (setq-local treesit-font-lock-settings kotlin--treesit-settings)
