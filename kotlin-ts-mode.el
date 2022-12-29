@@ -121,11 +121,17 @@ This function is heavily inspired by `js--fontify-template-string'."
 
      (jump_expression ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @font-lock-keyword-face)
 
-     ["if" "else" "when"] @font-lock-keyword-face
+     (if_expression ["if" "else"] @font-lock-keyword-face)
+     (when_expression ["when"] @font-lock-keyword-face)
+     (for_statement "for" @font-lock-keyword-face)
+     (while_statement "while" @font-lock-keyword-face)
+     (do_while_statement ["do" "while"] @font-lock-keyword-face)
 
-     ["for" "do" "while" "in"] @font-lock-keyword-face
+     ["in" "throw"] @font-lock-keyword-face
 
-     ["try" "catch" "throw" "finally"] @font-lock-keyword-face
+     (try_expression "try" @font-lock-keyword-face)
+     (catch_block "catch" @font-lock-keyword-face)
+     (finally_block "finally" @font-lock-keyword-face)
 
      (type_test "is" @font-lock-keyword-face)
 
@@ -182,6 +188,7 @@ This function is heavily inspired by `js--fontify-template-string'."
 
    :language 'kotlin
    :feature 'builtin
+   :override t
    '((call_expression (simple_identifier) @font-lock-builtin-face
                       (:equal @font-lock-builtin-face "listOf"))
      (call_expression (simple_identifier) @font-lock-builtin-face
