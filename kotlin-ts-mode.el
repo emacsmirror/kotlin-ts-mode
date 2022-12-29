@@ -286,7 +286,11 @@ This function is heavily inspired by `js--fontify-template-string'."
      (call_expression (simple_identifier) @font-lock-builtin-face
                       (:equal @font-lock-builtin-face "suspend"))
      (call_expression (simple_identifier) @font-lock-builtin-face
-                      (:equal @font-lock-builtin-face "synchronized")))))
+                      (:equal @font-lock-builtin-face "synchronized")))
+
+   :language 'kotlin
+   :feature 'variable
+   '((simple_identifier) @font-lock-variable-name-face)))
 
 (defconst kotlin-ts-mode--treesit-indent-rules
   (let ((offset kotlin-ts-mode-indent-offset))
@@ -330,7 +334,7 @@ This function is heavily inspired by `js--fontify-template-string'."
   ;; Syntax Highlighting
   (setq-local treesit-font-lock-settings kotlin-ts-mode--treesit-settings)
   (setq-local treesit-font-lock-feature-list '((comment number string definition)
-                                               (keyword builtin type constant)
+                                               (keyword builtin type constant variable)
                                                (escape-sequence function property)))
 
   ;; Indent
