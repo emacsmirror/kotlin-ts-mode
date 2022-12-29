@@ -167,6 +167,17 @@ This function is heavily inspired by `js--fontify-template-string'."
      (variable_declaration (simple_identifier) @font-lock-variable-name-face))
 
    :language 'kotlin
+   :feature 'number
+   '([(integer_literal) (long_literal) (hex_literal) (bin_literal) (unsigned_literal) (real_literal)] @font-lock-number-face)
+
+   :language 'kotlin
+   :feature 'type
+   '((type_identifier) @font-lock-type-face
+     (enum_entry (simple_identifier) @font-lock-type-face)
+     (call_expression (simple_identifier) @font-lock-type-face
+                      (:match "^[A-Z]" @font-lock-type-face)))
+
+   :language 'kotlin
    :feature 'function
    '((call_expression (navigation_expression (navigation_suffix (simple_identifier) @font-lock-function-name-face)))
      (call_expression (simple_identifier) @font-lock-function-name-face))
@@ -174,16 +185,6 @@ This function is heavily inspired by `js--fontify-template-string'."
    :language 'kotlin
    :feature 'property
    '((navigation_expression (navigation_suffix (simple_identifier) @font-lock-property-face)))
-
-   :language 'kotlin
-   :feature 'number
-   '([(integer_literal) (long_literal) (hex_literal) (bin_literal) (unsigned_literal) (real_literal)] @font-lock-number-face)
-
-   :language 'kotlin
-   :feature 'type
-   '((type_identifier) @font-lock-type-face
-     (call_expression (simple_identifier) @font-lock-type-face
-                      (:match "^[A-Z]" @font-lock-type-face)))
 
    :language 'kotlin
    :feature 'constant
