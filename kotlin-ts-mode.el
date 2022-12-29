@@ -188,8 +188,11 @@ This function is heavily inspired by `js--fontify-template-string'."
 
    :language 'kotlin
    :feature 'constant
-   '(["null" (boolean_literal)] @font-lock-constant-face)
-
+   :override t
+   '(["null" (boolean_literal)] @font-lock-constant-face
+     ((simple_identifier) @font-lock-constant-face
+      (:match "^[A-Z_][A-Z_\\d]*$" @font-lock-constant-face))
+     )
 
    :language 'kotlin
    :feature 'builtin
