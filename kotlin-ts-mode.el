@@ -29,6 +29,7 @@
 
 (require 'treesit)
 (require 'c-ts-mode) ; For comment indent and filling.
+(require 'project)
 
 (defvar kotlin-ts-mode-indent-offset 4)
 
@@ -319,6 +320,78 @@ This function is heavily inspired by `js--fontify-template-string'."
            (file-name-as-test (concat (file-name-base (buffer-file-name)) "Test.kt"))
            (test-file-location (concat test-directory file-name-as-test)))
       (find-file test-file-location))))
+
+(defun kotlin-ts-mode--get-package-name ()
+  "Determine the name of the package of the current file."
+  (let* ((root-node (treesit-buffer-root-node))
+         (package-node (treesit-search-subtree root-node (regexp-quote "package_header"))))
+    (when package-node
+      (treesit-node-text (treesit-node-child package-node 1) t)
+      )
+    ))
+
+(defun kotlin-ts-mode--get-class-name ()
+  "Determine the name of the class containing point."
+  (let ((class-node (treesit-thing-at-point (regexp-quote "class_declaration") 'nested)))
+    (when class-node
+      (treesit-node-text (treesit-search-subtree class-node (regexp-quote "type_identifier") nil nil 1) t))))
+
+(defun kotlin-ts-mode--get-function-name ()
+  "Determine the name of the function containing point."
+  (let ((function-node (treesit-thing-at-point (regexp-quote "function_declaration") 'nested)))
+    (when function-node
+      (treesit-node-text (treesit-search-subtree function-node (regexp-quote "simple_identifier") nil nil 1) t)
+      )))
+
+(defun kotlin-ts-mode--qualify-name (&rest names)
+  "Return a string that fully qualifies the given NAMES.
+
+This function will strip out any surrounding backtick characters
+in the individual names."
+  (string-join (mapcar
+                (lambda (name)
+                  (replace-regexp-in-string "^`" "" (replace-regexp-in-string "`$" "" name)))
+                names)
+               ".")
+  )
+
+(defun kotlin-ts-mode--in-gradle-project-p ()
+  "Determine if the current buffer is in a project with a local Gradle installation."
+  (file-exists-p (string-join `(,(project-root (project-current)) "gradlew") "/")))
+
+(defun kotlin-ts-mode--run-gradle-command (task args)
+  "Run the given Gradle TASK with the given ARGS."
+  (let ((default-directory default-directory)
+        (exec-path exec-path)
+        (command "gradle")
+        (buffer (get-buffer-create "*kotlin-ts-mode[gradle]*")))
+    (when (kotlin-ts-mode--in-gradle-project-p)
+      (setq default-directory (project-root (project-current))
+            command "./gradlew"
+            exec-path (list nil)))
+    (with-current-buffer buffer
+      (erase-buffer))
+    (display-buffer buffer)
+    (apply #'call-process command nil buffer t task args)
+  ))
+
+(defun kotlin-ts-mode-run-current-test-function ()
+  "Run the current test function."
+  (interactive)
+  (let* ((package-name (kotlin-ts-mode--get-package-name))
+         (class-name (kotlin-ts-mode--get-class-name))
+         (function-name (kotlin-ts-mode--get-function-name)))
+    (if (not (and package-name class-name function-name))
+        (warn "Could not find the package, class, and function name.")
+      (kotlin-ts-mode--run-gradle-command
+       "test"
+       (list
+        (concat
+         "--tests="
+         (kotlin-ts-mode--qualify-name
+          package-name
+          class-name
+          function-name)))))))
 
 ;;;###autoload
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
