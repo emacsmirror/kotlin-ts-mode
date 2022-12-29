@@ -125,7 +125,8 @@
 
    :language 'kotlin
    :feature 'function
-   '((call_expression (navigation_expression (navigation_suffix (simple_identifier) @font-lock-function-name-face))))
+   '((call_expression (navigation_expression (navigation_suffix (simple_identifier) @font-lock-function-name-face)))
+     (call_expression (simple_identifier) @font-lock-function-name-face))
 
    :language 'kotlin
    :feature 'property
