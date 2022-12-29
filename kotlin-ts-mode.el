@@ -124,6 +124,14 @@
      (variable_declaration (simple_identifier) @font-lock-variable-name-face))
 
    :language 'kotlin
+   :feature 'function
+   '((call_expression (navigation_expression (navigation_suffix (simple_identifier) @font-lock-function-name-face))))
+
+   :language 'kotlin
+   :feature 'property
+   '((navigation_expression (navigation_suffix (simple_identifier) @font-lock-property-face)))
+
+   :language 'kotlin
    :feature 'number
    '([(integer_literal) (long_literal) (hex_literal) (bin_literal) (unsigned_literal) (real_literal)] @font-lock-number-face)
 
@@ -266,8 +274,8 @@
   ;; Syntax Highlighting
   (setq-local treesit-font-lock-settings kotlin-ts-mode--treesit-settings)
   (setq-local treesit-font-lock-feature-list '((comment number string definition)
-                                               (class-name keyword builtin type constant)
-                                               (string-interpolation decorator)))
+                                               (keyword builtin type constant)
+                                               (string-interpolation function property)))
 
   ;; Indent
   (setq-local treesit-simple-indent-rules kotlin-ts-mode--treesit-indent-rules)
