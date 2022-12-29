@@ -51,6 +51,30 @@
     (modify-syntax-entry ?\r "> b" st)
     st))
 
+(defconst kotlin-ts-mode--special-string-child-node-types
+  '("interpolated_identifier" "interpolated_expression" "${" "}" "$")
+  "Node types that appear in a string that have a special face.")
+
+(defun kotlin-ts-mode--fontify-string (node override start end &rest _)
+  "Fontify a string but not any substitutions inside of it.
+
+See `treesit-font-lock-rules' for more details.  NODE is the string node.  START
+and END mark the region to be fontified.  OVERRIDE is the override flag.
+
+This function is heavily inspired by `js--fontify-template-string'."
+  (let ((child (treesit-node-child node 0))
+        (font-beg (treesit-node-start node)))
+    (while child
+      (let ((font-end (if (member (treesit-node-type child) kotlin-ts-mode--special-string-child-node-types)
+                          (treesit-node-start child)
+                        (treesit-node-end child))))
+        (setq font-beg (max start font-beg))
+        (when (< font-beg end)
+          (treesit-fontify-with-override
+           font-beg font-end 'font-lock-string-face override start end)))
+      (setq font-beg (treesit-node-end child)
+            child (treesit-node-next-sibling child)))))
+
 ;; Based on https://github.com/fwcd/tree-sitter-kotlin/pull/50
 (defconst kotlin-ts-mode--treesit-settings
   (treesit-font-lock-rules
@@ -113,8 +137,17 @@
 
    :language 'kotlin
    :feature 'string
-   '((character_literal) @font-lock-string-face
-     [(line_string_literal) (multi_line_string_literal)] @font-lock-string-face)
+   '(
+     (character_literal) @font-lock-string-face
+     [(line_string_literal) (multi_line_string_literal)] @kotlin-ts-mode--fontify-string
+     (line_string_literal ["$" "${" "}"] @font-lock-builtin-face)
+     (multi_line_string_literal ["$" "${" "}"] @font-lock-builtin-face)
+     )
+
+   :language 'kotlin
+   :feature 'escape-sequence
+   :override t
+   '((character_escape_seq) @font-lock-escape-face)
 
    :language 'kotlin
    :feature 'definition
@@ -276,7 +309,7 @@
   (setq-local treesit-font-lock-settings kotlin-ts-mode--treesit-settings)
   (setq-local treesit-font-lock-feature-list '((comment number string definition)
                                                (keyword builtin type constant)
-                                               (string-interpolation function property)))
+                                               (escape-sequence function property)))
 
   ;; Indent
   (setq-local treesit-simple-indent-rules kotlin-ts-mode--treesit-indent-rules)
