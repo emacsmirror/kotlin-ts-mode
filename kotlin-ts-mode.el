@@ -175,7 +175,9 @@ This function is heavily inspired by `js--fontify-template-string'."
    '((type_identifier) @font-lock-type-face
      (enum_entry (simple_identifier) @font-lock-type-face)
      (call_expression (simple_identifier) @font-lock-type-face
-                      (:match "^[A-Z]" @font-lock-type-face)))
+                      (:match "^[A-Z]" @font-lock-type-face))
+     (navigation_expression (simple_identifier) @font-lock-type-face
+                            (:match "^[A-Z]" @font-lock-type-face)))
 
    :language 'kotlin
    :feature 'function
