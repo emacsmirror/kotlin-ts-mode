@@ -102,6 +102,10 @@ This function is heavily inspired by `js--fontify-template-string'."
 
      (import_header "import" @font-lock-keyword-face)
 
+     (primary_constructor "constructor" @font-lock-keyword-face)
+     (constructor_delegation_call "this" @font-lock-keyword-face)
+     (secondary_constructor "constructor" @font-lock-keyword-face)
+
      (type_alias "typealias" @font-lock-keyword-face)
      [
       (class_modifier)
@@ -290,6 +294,7 @@ This function is heavily inspired by `js--fontify-template-string'."
        ((parent-is "finally_block") parent-bol ,offset)
        ((parent-is "function_body") parent-bol ,offset)
        ((parent-is "lambda_literal") parent-bol ,offset)
+       ((parent-is "secondary_constructor") parent-bol ,offset)
        ((parent-is "try_expression") parent-bol ,offset)
        ((parent-is "value_arguments") parent-bol ,offset)
        ((parent-is "when_expression") parent-bol ,offset)
