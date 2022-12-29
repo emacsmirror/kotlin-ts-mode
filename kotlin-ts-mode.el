@@ -320,6 +320,7 @@ This function is heavily inspired by `js--fontify-template-string'."
            (test-file-location (concat test-directory file-name-as-test)))
       (find-file test-file-location))))
 
+;;;###autoload
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
   (treesit-parser-create 'kotlin)
