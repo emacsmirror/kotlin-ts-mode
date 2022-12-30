@@ -311,6 +311,38 @@ This function is heavily inspired by `js--fontify-template-string'."
        ((parent-is "when_expression") parent-bol ,offset)
        ((parent-is "comment") parent-bol 1)))))
 
+;; Imenu
+
+(defun kotlin-ts-mode--defun-name (node)
+  "Return the name of the defun node if NODE is a defun node.
+
+Else return nil."
+  (pcase (treesit-node-type node)
+    ("class_declaration"
+     (treesit-node-text (treesit-search-subtree node (regexp-quote "type_identifier") nil nil 1) t))
+    ("function_declaration"
+      (treesit-node-text (treesit-search-subtree node (regexp-quote "simple_identifier") nil nil 1) t))))
+
+(defun kotlin-ts-mode--imenu-1 (tree)
+  "Helper for `kotlin-ts-mode--imenu'.
+
+Take in a sparse tree TREE and map the symbols to their positions."
+  (mapcar (lambda (child) (cons (treesit-defun-name child) (treesit-node-start child))) (flatten-list tree)))
+
+(defun kotlin-ts-mode--imenu ()
+  "Return Imenu alist for the current buffer."
+  (let* ((root-node (treesit-buffer-root-node))
+         (class-tree (treesit-induce-sparse-tree root-node "^class_declaration$" nil 10))
+         (class-entries (kotlin-ts-mode--imenu-1 class-tree))
+         (function-tree (treesit-induce-sparse-tree root-node "^function_declaration$" nil 10))
+         (function-entries (kotlin-ts-mode--imenu-1 function-tree))
+         )
+    (append
+     (when class-entries `(("Class" . ,class-entries)))
+     (when function-entries `(("Function" . ,function-entries)))
+    )
+    ))
+
 (defun kotlin-ts-mode-goto-test-file ()
   "Go from the current file to the test file."
   (interactive)
@@ -333,15 +365,12 @@ This function is heavily inspired by `js--fontify-template-string'."
 (defun kotlin-ts-mode--get-class-name ()
   "Determine the name of the class containing point."
   (let ((class-node (treesit-thing-at-point (regexp-quote "class_declaration") 'nested)))
-    (when class-node
-      (treesit-node-text (treesit-search-subtree class-node (regexp-quote "type_identifier") nil nil 1) t))))
+    (when class-node (treesit-defun-name class-node))))
 
 (defun kotlin-ts-mode--get-function-name ()
   "Determine the name of the function containing point."
   (let ((function-node (treesit-thing-at-point (regexp-quote "function_declaration") 'nested)))
-    (when function-node
-      (treesit-node-text (treesit-search-subtree function-node (regexp-quote "simple_identifier") nil nil 1) t)
-      )))
+    (when function-node (treesit-defun-name function-node))))
 
 (defun kotlin-ts-mode--qualify-name (&rest names)
   "Return a string that fully qualifies the given NAMES.
@@ -398,6 +427,8 @@ in the individual names."
   "Major mode for editing Kotlin using tree-sitter."
   (treesit-parser-create 'kotlin)
 
+  (setq-local treesit-defun-name-function #'kotlin-ts-mode--defun-name)
+
   ;; Comments
   (c-ts-mode-comment-setup)
 
@@ -413,6 +444,10 @@ in the individual names."
 
   ;; Indent
   (setq-local treesit-simple-indent-rules kotlin-ts-mode--treesit-indent-rules)
+
+  ;; Imenu
+  (setq-local imenu-create-index-function #'kotlin-ts-mode--imenu)
+  (setq-local which-func-functions nil)
 
   (treesit-major-mode-setup)
 
