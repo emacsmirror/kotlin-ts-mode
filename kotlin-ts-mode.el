@@ -3,6 +3,7 @@
 ;; Copyright 2022 Alex Figl-Brick
 
 ;; Author: Alex Figl-Brick <alex@alexbrick.me>
+;; Version: 0.1
 ;; Package-Requires: ((emacs "29"))
 ;; URL: https://gitlab.com/bricka/emacs-kotlin-ts-mode
 
@@ -148,12 +149,10 @@ This function is heavily inspired by `js--fontify-template-string'."
 
    :language 'kotlin
    :feature 'string
-   '(
-     (character_literal) @font-lock-string-face
+   '((character_literal) @font-lock-string-face
      [(line_string_literal) (multi_line_string_literal)] @kotlin-ts-mode--fontify-string
      (line_string_literal ["$" "${" "}"] @font-lock-builtin-face)
-     (multi_line_string_literal ["$" "${" "}"] @font-lock-builtin-face)
-     )
+     (multi_line_string_literal ["$" "${" "}"] @font-lock-builtin-face))
 
    :language 'kotlin
    :feature 'escape-sequence
@@ -194,8 +193,7 @@ This function is heavily inspired by `js--fontify-template-string'."
    :override t
    '(["null" (boolean_literal)] @font-lock-constant-face
      ((simple_identifier) @font-lock-constant-face
-      (:match "^[A-Z_][A-Z_\\d]*$" @font-lock-constant-face))
-     )
+      (:match "^[A-Z_][A-Z_\\d]*$" @font-lock-constant-face)))
 
    :language 'kotlin
    :feature 'builtin
@@ -321,7 +319,7 @@ Else return nil."
     ("class_declaration"
      (treesit-node-text (treesit-search-subtree node (regexp-quote "type_identifier") nil nil 1) t))
     ("function_declaration"
-      (treesit-node-text (treesit-search-subtree node (regexp-quote "simple_identifier") nil nil 1) t))))
+     (treesit-node-text (treesit-search-subtree node (regexp-quote "simple_identifier") nil nil 1) t))))
 
 (defun kotlin-ts-mode--imenu-1 (tree)
   "Helper for `kotlin-ts-mode--imenu'.
@@ -335,13 +333,10 @@ Take in a sparse tree TREE and map the symbols to their positions."
          (class-tree (treesit-induce-sparse-tree root-node "^class_declaration$" nil 10))
          (class-entries (kotlin-ts-mode--imenu-1 class-tree))
          (function-tree (treesit-induce-sparse-tree root-node "^function_declaration$" nil 10))
-         (function-entries (kotlin-ts-mode--imenu-1 function-tree))
-         )
+         (function-entries (kotlin-ts-mode--imenu-1 function-tree)))
     (append
      (when class-entries `(("Class" . ,class-entries)))
-     (when function-entries `(("Function" . ,function-entries)))
-    )
-    ))
+     (when function-entries `(("Function" . ,function-entries))))))
 
 (defun kotlin-ts-mode-goto-test-file ()
   "Go from the current file to the test file."
@@ -358,9 +353,7 @@ Take in a sparse tree TREE and map the symbols to their positions."
   (let* ((root-node (treesit-buffer-root-node))
          (package-node (treesit-search-subtree root-node (regexp-quote "package_header"))))
     (when package-node
-      (treesit-node-text (treesit-node-child package-node 1) t)
-      )
-    ))
+      (treesit-node-text (treesit-node-child package-node 1) t))))
 
 (defun kotlin-ts-mode--get-class-name ()
   "Determine the name of the class containing point."
@@ -381,11 +374,10 @@ in the individual names."
                 (lambda (name)
                   (replace-regexp-in-string "^`" "" (replace-regexp-in-string "`$" "" name)))
                 names)
-               ".")
-  )
+               "."))
 
 (defun kotlin-ts-mode--in-gradle-project-p ()
-  "Determine if the current buffer is in a project with a local Gradle installation."
+  "Return t if the current buffer is in a project with a local Gradle installation."
   (file-exists-p (string-join `(,(project-root (project-current)) "gradlew") "/")))
 
 (defun kotlin-ts-mode--run-gradle-command (task args)
@@ -401,8 +393,7 @@ in the individual names."
     (with-current-buffer buffer
       (erase-buffer))
     (display-buffer buffer)
-    (apply #'call-process command nil buffer t task args)
-  ))
+    (apply #'call-process command nil buffer t task args)))
 
 (defun kotlin-ts-mode-run-current-test-function ()
   "Run the current test function."
