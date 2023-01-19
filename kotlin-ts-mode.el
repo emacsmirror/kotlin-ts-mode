@@ -29,19 +29,20 @@
 ;;; Code:
 
 (require 'treesit)
-(require 'c-ts-mode) ; For comment indent and filling.
 (require 'project)
 (eval-when-compile
   (require 'subr-x))
 
 (declare-function treesit-parser-create "treesit.c")
 (declare-function treesit-induce-sparse-tree "treesit.c")
+(declare-function treesit-defun-name "treesit.c")
 (declare-function treesit-node-next-sibling "treesit.c")
 (declare-function treesit-node-end "treesit.c")
 (declare-function treesit-node-start "treesit.c")
 (declare-function treesit-node-child "treesit.c")
 (declare-function treesit-node-type "treesit.c")
 (declare-function treesit-search-subtree "treesit.c")
+(declare-function treesit-thing-at-point "treesit.c")
 
 (defvar kotlin-ts-mode-indent-offset 4)
 
@@ -434,7 +435,16 @@ in the individual names."
     (setq-local treesit-defun-name-function #'kotlin-ts-mode--defun-name)
 
     ;; Comments
-    (c-ts-mode-comment-setup)
+    ;; Stolen from c-ts-mode
+    (setq-local comment-start "/* ")
+    (setq-local comment-end " */")
+    (setq-local comment-start-skip (rx (or (seq "/" (+ "/"))
+                                           (seq "/" (+ "*")))
+                                       (* (syntax whitespace))))
+    (setq-local comment-end-skip
+                (rx (* (syntax whitespace))
+                    (group (or (syntax comment-end)
+                               (seq (+ "*") "/")))))
 
     ;; Electric
     (setq-local electric-indent-chars
