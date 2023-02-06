@@ -1,3 +1,5 @@
+[[https://melpa.org/#/kotlin-ts-mode][file:https://melpa.org/packages/kotlin-ts-mode-badge.svg]]
+
 A major mode for [[https://kotlinlang.org/][Kotlin]], based on the built-in support for [[https://tree-sitter.github.io/tree-sitter/][tree-sitter]] that was added in Emacs 29.
 
 * Install
