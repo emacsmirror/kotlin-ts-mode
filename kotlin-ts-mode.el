@@ -316,6 +316,7 @@ This function is heavily inspired by `js--fontify-template-string'."
        ((parent-is "finally_block") parent-bol ,offset)
        ((parent-is "function_body") parent-bol ,offset)
        ((parent-is "lambda_literal") parent-bol ,offset)
+       ((parent-is "primary_constructor") parent-bol ,offset)
        ((parent-is "secondary_constructor") parent-bol ,offset)
        ((parent-is "try_expression") parent-bol ,offset)
        ((parent-is "value_arguments") parent-bol ,offset)
