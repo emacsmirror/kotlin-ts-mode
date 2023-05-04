@@ -151,7 +151,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
        (jump_expression ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @font-lock-keyword-face)
 
-       (if_expression ["if" "else"] @font-lock-keyword-face)
+       ["if" "else"] @font-lock-keyword-face
        (when_expression ["when"] @font-lock-keyword-face)
        (for_statement "for" @font-lock-keyword-face)
        (while_statement "while" @font-lock-keyword-face)
