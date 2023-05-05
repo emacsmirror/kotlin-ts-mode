@@ -126,7 +126,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
        (package_header "package" @font-lock-keyword-face)
 
-       (import_header "import" @font-lock-keyword-face)
+       ["import" "as"] @font-lock-keyword-face
 
        (primary_constructor "constructor" @font-lock-keyword-face)
        (constructor_delegation_call "this" @font-lock-keyword-face)
@@ -158,6 +158,8 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        (do_while_statement ["do" "while"] @font-lock-keyword-face)
 
        ["in" "throw"] @font-lock-keyword-face
+
+       (infix_expression (simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "to"))
 
        (try_expression "try" @font-lock-keyword-face)
        (catch_block "catch" @font-lock-keyword-face)
