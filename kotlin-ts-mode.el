@@ -131,6 +131,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        (primary_constructor "constructor" @font-lock-keyword-face)
        (constructor_delegation_call "this" @font-lock-keyword-face)
        (secondary_constructor "constructor" @font-lock-keyword-face)
+       "init" @font-lock-keyword-face
 
        (type_alias "typealias" @font-lock-keyword-face)
        [
@@ -323,6 +324,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
     `((kotlin
        ((node-is "}") parent-bol 0)
        ((node-is ")") parent-bol 0)
+       ((parent-is "anonymous_initializer") parent-bol ,offset)
        ((parent-is "statements") parent-bol 0)
        ((parent-is "catch_block") parent-bol ,offset)
        ((parent-is "class_body") parent-bol ,offset)
