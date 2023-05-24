@@ -58,11 +58,12 @@
     (modify-syntax-entry ?_ "_" st)
     (modify-syntax-entry ?@ "_" st)
 
+    ;; Based on the "appropriate comment syntax settings for C++" from https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Flags.html
     ;; b-style comment
     (modify-syntax-entry ?/ ". 124" st)
     (modify-syntax-entry ?* ". 23b" st)
-    (modify-syntax-entry ?\n "> b" st)
-    (modify-syntax-entry ?\r "> b" st)
+    (modify-syntax-entry ?\n ">" st)
+    (modify-syntax-entry ?\r ">" st)
     st))
 
 (defconst kotlin-ts-mode--special-string-child-node-types
