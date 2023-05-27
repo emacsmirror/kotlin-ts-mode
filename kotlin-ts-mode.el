@@ -48,22 +48,28 @@
 
 (defvar kotlin-ts-mode-syntax-table
   (let ((st (make-syntax-table)))
-
-    ;; Strings
-    (modify-syntax-entry ?\" "\"" st)
-    (modify-syntax-entry ?\' "\"" st)
-    (modify-syntax-entry ?` "\"" st)
-
-    ;; `_' and `@' as being a valid part of a symbol
-    (modify-syntax-entry ?_ "_" st)
-    (modify-syntax-entry ?@ "_" st)
-
-    ;; Based on the "appropriate comment syntax settings for C++" from https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Flags.html
-    ;; b-style comment
-    (modify-syntax-entry ?/ ". 124" st)
-    (modify-syntax-entry ?* ". 23b" st)
-    (modify-syntax-entry ?\n ">" st)
-    (modify-syntax-entry ?\r ">" st)
+    ;; Adapted from java-ts-mode
+    ;; https://git.savannah.gnu.org/cgit/emacs.git/tree/lisp/progmodes/java-ts-mode.el#n49
+    ;; at 47d87112ffb7f0e2ff52d4abef6e259c00d5385c
+    (modify-syntax-entry  ?_     "_"       st)
+    (modify-syntax-entry  ?\\    "\\"      st)
+    (modify-syntax-entry  ?+     "."       st)
+    (modify-syntax-entry  ?-     "."       st)
+    (modify-syntax-entry  ?=     "."       st)
+    (modify-syntax-entry  ?%     "."       st)
+    (modify-syntax-entry  ?<     "."       st)
+    (modify-syntax-entry  ?>     "."       st)
+    (modify-syntax-entry  ?&     "."       st)
+    (modify-syntax-entry  ?|     "."       st)
+    (modify-syntax-entry  ?\'    "\""      st)
+    (modify-syntax-entry  ?\240  "."       st)
+    (modify-syntax-entry  ?/     ". 124b"  st)
+    (modify-syntax-entry  ?*     ". 23"    st)
+    (modify-syntax-entry  ?\n    "> b"     st)
+    (modify-syntax-entry  ?\r    "> b"     st)
+    (modify-syntax-entry  ?\^m   "> b"     st)
+    (modify-syntax-entry  ?@     "'"       st)
+    (modify-syntax-entry  ?`     "\""      st)
     st))
 
 (defconst kotlin-ts-mode--special-string-child-node-types
