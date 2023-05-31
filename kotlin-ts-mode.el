@@ -455,6 +455,22 @@ support custom project names."
     (when (and gradle-dir (not (string-equal gradle-dir (project-root (project-current)))))
       (file-name-nondirectory (directory-file-name gradle-dir)))))
 
+(defun kotlin-ts-mode-run-current-test-class ()
+  "Run the current test class."
+  (interactive)
+  (let* ((package-name (kotlin-ts-mode--get-package-name))
+         (class-name (kotlin-ts-mode--get-class-name)))
+    (if (not (and package-name class-name))
+        (warn "Could not find the package and class name.")
+      (kotlin-ts-mode--run-gradle-command
+       (kotlin-ts-mode--get-subproject-name)
+       "test"
+       (list
+        "--tests"
+         (kotlin-ts-mode--qualify-name
+          package-name
+          class-name))))))
+
 (defun kotlin-ts-mode-run-current-test-function ()
   "Run the current test function."
   (interactive)
