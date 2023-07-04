@@ -72,10 +72,6 @@
     (modify-syntax-entry  ?`     "\""      st)
     st))
 
-(defconst kotlin-ts-mode--special-string-child-node-types
-  '("interpolated_identifier" "interpolated_expression" "${" "}" "$")
-  "Node types that appear in a string that have a special face.")
-
 (defun kotlin-ts-mode--fontify-string (node override start end &rest _)
   "Fontify a string but not any substitutions inside of it.
 
@@ -83,18 +79,21 @@ See `treesit-font-lock-rules' for more details.  NODE is the string node.  START
 and END mark the region to be fontified.  OVERRIDE is the override flag.
 
 This function is heavily inspired by `js--fontify-template-string'."
-  (let ((child (treesit-node-child node 0))
-        (font-beg (treesit-node-start node)))
-    (while child
-      (let ((font-end (if (member (treesit-node-type child) kotlin-ts-mode--special-string-child-node-types)
-                          (treesit-node-start child)
-                        (treesit-node-end child))))
-        (setq font-beg (max start font-beg))
-        (when (< font-beg end)
-          (treesit-fontify-with-override
-           font-beg font-end 'font-lock-string-face override start end)))
-      (setq font-beg (treesit-node-end child)
-            child (treesit-node-next-sibling child)))))
+  (if (treesit-node-child node 0)
+      (let ((child (treesit-node-child node 0))
+            (font-beg (treesit-node-start node)))
+        (while child
+          (let ((font-end (if (equal (treesit-node-type child) "interpolated_expression")
+                              (treesit-node-start child)
+                            (treesit-node-end child))))
+            (setq font-beg (max start font-beg))
+            (when (< font-beg end)
+              (treesit-fontify-with-override
+               font-beg font-end 'font-lock-string-face override start end)))
+          (setq font-beg (treesit-node-end child)
+                child (treesit-node-next-sibling child))))
+    ;; If we get here, then the string has no children: it's just a normal string
+    (treesit-fontify-with-override (treesit-node-start node) (treesit-node-end node) 'font-lock-string-face override)))
 
 (defun kotlin-ts-mode--fontify-not-is (node override start end &rest _)
   "Fontify the '!is' string inside of type checks.
@@ -185,9 +184,13 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      :language 'kotlin
      :feature 'string
      '((character_literal) @font-lock-string-face
-       [(line_string_literal) (multi_line_string_literal)] @kotlin-ts-mode--fontify-string
-       (line_string_literal ["$" "${" "}"] @font-lock-builtin-face)
-       (multi_line_string_literal ["$" "${" "}"] @font-lock-builtin-face))
+       (string_literal) @kotlin-ts-mode--fontify-string)
+
+     :language 'kotlin
+     :feature 'string
+     :override t
+     '((interpolated_identifier) @font-lock-variable-name-face
+       (string_literal ["$" "${" "}"] @font-lock-builtin-face))
 
      :language 'kotlin
      :feature 'escape-sequence
