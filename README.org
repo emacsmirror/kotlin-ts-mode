@@ -38,3 +38,12 @@ Clone this repository somewhere on your machine.
     :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
     )
 #+END_SRC
+
+* Usage
+Syntax highlighting and code navigation should work automatically. There are a few extra commands defined, though:
+
+| Command                                    | Description                                   |
+|--------------------------------------------+-----------------------------------------------|
+| ~kotlin-ts-mode-goto-test-file~            | Find the test file corresponding to this file |
+| ~kotlin-ts-mode-run-current-test-class~    | Run the tests in the class containing point   |
+| ~kotlin-ts-mode-run-current-test-function~ | Run the test function containing point        |
