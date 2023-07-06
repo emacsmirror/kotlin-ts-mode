@@ -5,19 +5,14 @@ A major mode for [[https://kotlinlang.org/][Kotlin]], based on the built-in supp
 * Install
 
 ** Grammar
-In order to use ~tree-sitter~, you must have a grammar for the language. In this case, that is [[https://github.com/fwcd/tree-sitter-kotlin][tree-sitter-kotlin]].
-
-#+BEGIN_SRC shell
-  git clone git@github.com:fwcd/tree-sitter-kotlin.git
-  cd tree-sitter-kotlin
-  cc -shared -fPIC -g -O2 -I src src/scanner.c src/parser.c -o libtree-sitter-kotlin.so
-#+END_SRC
-
-You must then either copy ~libtree-sitter-kotlin.so~ into your library location (probably ~/usr/local/lib~) or you must add the directory to your ~treesit-extra-load-path~ variable:
+In order to use ~tree-sitter~, you must have a grammar for the language. In this case, that is [[https://github.com/fwcd/tree-sitter-kotlin][tree-sitter-kotlin]]. The easiest way to install it is to add it to ~treesit-language-sources-alist~:
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'treesit-extra-load-path "/path/to/tree-sitter-kotlin")
+  (require 'treesit)
+  (add-to-list 'treesit-language-source-alist '(mermaid . ("https://github.com/fwcd/tree-sitter-kotlin")))
 #+END_SRC
+
+Then you can run ~M-x treesit-install-language-grammar~.
 
 ** Major Mode
 First, make sure that your Emacs is compiled with ~tree-sitter~ support:
