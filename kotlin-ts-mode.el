@@ -139,7 +139,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        (primary_constructor "constructor" @font-lock-keyword-face)
        (constructor_delegation_call "this" @font-lock-keyword-face)
        (secondary_constructor "constructor" @font-lock-keyword-face)
-       "init" @font-lock-keyword-face
+       ["init" "by"] @font-lock-keyword-face
 
        (type_alias "typealias" @font-lock-keyword-face)
        [
