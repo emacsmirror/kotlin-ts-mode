@@ -4,7 +4,7 @@
 
 ;; Author: Alex Figl-Brick <alex@alexbrick.me>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "29"))
+;; Package-Requires: ((emacs "29.1"))
 ;; URL: https://gitlab.com/bricka/emacs-kotlin-ts-mode
 
 ;; This program is free software: you can redistribute it and/or
@@ -80,18 +80,20 @@ and END mark the region to be fontified.  OVERRIDE is the override flag.
 
 This function is heavily inspired by `js--fontify-template-string'."
   (if (treesit-node-child node 0)
-      (let ((child (treesit-node-child node 0))
-            (font-beg (treesit-node-start node)))
+      (let ((font-begin (treesit-node-start node))
+            (font-end nil)
+            (child (treesit-node-child node 0)))
         (while child
-          (let ((font-end (if (equal (treesit-node-type child) "interpolated_expression")
-                              (treesit-node-start child)
-                            (treesit-node-end child))))
-            (setq font-beg (max start font-beg))
-            (when (< font-beg end)
-              (treesit-fontify-with-override
-               font-beg font-end 'font-lock-string-face override start end)))
-          (setq font-beg (treesit-node-end child)
-                child (treesit-node-next-sibling child))))
+          (setq font-end (if (equal (treesit-node-type child) "interpolated_expression")
+                             (treesit-node-start child)
+                           (treesit-node-end child)))
+          (treesit-fontify-with-override font-begin font-end 'font-lock-string-face override start end)
+          (setq font-begin (treesit-node-end child)
+                child (treesit-node-next-sibling child)))
+        (when (< font-begin end)
+          ;; There are no more children, but we haven't reached the end of the string
+          (treesit-fontify-with-override font-begin end 'font-lock-string-face override start end)))
+
     ;; If we get here, then the string has no children: it's just a normal string
     (treesit-fontify-with-override (treesit-node-start node) (treesit-node-end node) 'font-lock-string-face override)))
 
