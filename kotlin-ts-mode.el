@@ -84,7 +84,8 @@ This function is heavily inspired by `js--fontify-template-string'."
             (font-end nil)
             (child (treesit-node-child node 0)))
         (while child
-          (setq font-end (if (equal (treesit-node-type child) "interpolated_expression")
+          (setq font-end (if (or (equal (treesit-node-type child) "interpolated_expression")
+                                 (equal (treesit-node-type child) "interpolated_identifier"))
                              (treesit-node-start child)
                            (treesit-node-end child)))
           (treesit-fontify-with-override font-begin font-end 'font-lock-string-face override start end)
@@ -118,6 +119,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        ;; FIXME: This will highlight the keyword outside of lambdas since tree-sitter
        ;;        does not allow us to check for arbitrary nestation
        ((simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "it"))
+       ((interpolated_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "it"))
 
        ;; `field` keyword inside property getter/setter
        ;; FIXME: This will highlight the keyword outside of getters and setters
@@ -191,8 +193,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      :language 'kotlin
      :feature 'string
      :override t
-     '((interpolated_identifier) @font-lock-variable-name-face
-       (string_literal ["$" "${" "}"] @font-lock-builtin-face))
+     '((string_literal ["$" "${" "}"] @font-lock-builtin-face))
 
      :language 'kotlin
      :feature 'escape-sequence
@@ -329,7 +330,8 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
      :language 'kotlin
      :feature 'variable
-     '((simple_identifier) @font-lock-variable-name-face))))
+     '((simple_identifier) @font-lock-variable-name-face
+       (interpolated_identifier) @font-lock-variable-name-face))))
 
 (defconst kotlin-ts-mode--treesit-indent-rules
   (let ((offset kotlin-ts-mode-indent-offset))
