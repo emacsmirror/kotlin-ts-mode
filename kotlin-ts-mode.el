@@ -402,8 +402,16 @@ Take in a sparse tree TREE and map the symbols to their positions."
 
 (defun kotlin-ts-mode--get-class-name ()
   "Determine the name of the class containing point."
-  (let ((class-node (treesit-thing-at-point (regexp-quote "class_declaration") 'nested)))
-    (when class-node (treesit-defun-name class-node))))
+  (let ((class-names nil)
+        (class-node (treesit-thing-at-point (regexp-quote "class_declaration") 'nested)))
+    (while class-node
+      (push (treesit-defun-name class-node) class-names)
+      (setq class-node
+            (treesit-parent-until
+             class-node
+             (lambda (node) (equal (treesit-node-type node) "class_declaration")))))
+    (when class-names
+      (string-join class-names "$"))))
 
 (defun kotlin-ts-mode--get-function-name ()
   "Determine the name of the function containing point."
