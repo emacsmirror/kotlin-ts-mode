@@ -72,6 +72,10 @@
     (modify-syntax-entry  ?`     "\""      st)
     st))
 
+(defconst kotlin-ts-mode--string-node-child-no-fontify
+  '("interpolated_expression" "interpolated_identifier" "${" "}" "$")
+  "Node types in a string that should not be fontified by the string face.")
+
 (defun kotlin-ts-mode--fontify-string (node override start end &rest _)
   "Fontify a string but not any substitutions inside of it.
 
@@ -84,8 +88,7 @@ This function is heavily inspired by `js--fontify-template-string'."
             (font-end nil)
             (child (treesit-node-child node 0)))
         (while child
-          (setq font-end (if (or (equal (treesit-node-type child) "interpolated_expression")
-                                 (equal (treesit-node-type child) "interpolated_identifier"))
+          (setq font-end (if (member (treesit-node-type child) kotlin-ts-mode--string-node-child-no-fontify)
                              (treesit-node-start child)
                            (treesit-node-end child)))
           (treesit-fontify-with-override font-begin font-end 'font-lock-string-face override start end)
@@ -93,7 +96,7 @@ This function is heavily inspired by `js--fontify-template-string'."
                 child (treesit-node-next-sibling child)))
         (when (< font-begin end)
           ;; There are no more children, but we haven't reached the end of the string
-          (treesit-fontify-with-override font-begin end 'font-lock-string-face override start end)))
+          (treesit-fontify-with-override font-begin (treesit-node-end node) 'font-lock-string-face override start end)))
 
     ;; If we get here, then the string has no children: it's just a normal string
     (treesit-fontify-with-override (treesit-node-start node) (treesit-node-end node) 'font-lock-string-face override)))
@@ -192,7 +195,6 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
      :language 'kotlin
      :feature 'string
-     :override t
      '((string_literal ["$" "${" "}"] @font-lock-builtin-face))
 
      :language 'kotlin
