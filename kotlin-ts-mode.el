@@ -234,7 +234,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      :override t
      '(["null" (boolean_literal)] @font-lock-constant-face
        ((simple_identifier) @font-lock-constant-face
-        (:match "^[A-Z_][A-Z_\\d]*$" @font-lock-constant-face)))
+        (:match "^[A-Z_][A-Z_0-9]*$" @font-lock-constant-face)))
 
      :language 'kotlin
      :feature 'builtin
