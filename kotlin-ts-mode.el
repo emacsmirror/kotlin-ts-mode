@@ -225,7 +225,8 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      :language 'kotlin
      :feature 'function
      '((call_expression (navigation_expression (navigation_suffix (simple_identifier) @font-lock-function-name-face)))
-       (call_expression (simple_identifier) @font-lock-function-name-face))
+       (call_expression (simple_identifier) @font-lock-function-name-face)
+       (infix_expression _ (simple_identifier) @font-lock-function-name-face _))
 
      :language 'kotlin
      :feature 'property
