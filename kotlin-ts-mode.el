@@ -355,6 +355,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        ((parent-is "value_arguments") parent-bol ,offset)
        ((parent-is "when_expression") parent-bol ,offset)
        ((parent-is "comment") parent-bol 1)
+       ((node-is "navigation_suffix") parent-bol ,offset)
        (catch-all prev-sibling 0)))))
 
 ;; Imenu
