@@ -129,26 +129,23 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        ;;        since tree-sitter does not allow us to check for arbitrary nestation
        ((simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "field"))
 
-       ;; `this` this keyword inside classes
-       (this_expression "this") @font-lock-keyword-face
-
        ;; `super` keyword inside classes
        (super_expression) @font-lock-keyword-face
 
        ["val" "var" "enum" "class" "object" "interface"] @font-lock-keyword-face
 
-       (package_header "package" @font-lock-keyword-face)
+       ["package" "import" "as"] @font-lock-keyword-face
 
-       ["import" "as"] @font-lock-keyword-face
-
-       (primary_constructor "constructor" @font-lock-keyword-face)
-       (constructor_delegation_call "this" @font-lock-keyword-face)
-       (secondary_constructor "constructor" @font-lock-keyword-face)
-       ["init" "by"] @font-lock-keyword-face
+       ["by"
+        "constructor"
+        "init"
+        "this"
+        "where"
+        "suspend"
+        ] @font-lock-keyword-face
 
        (type_alias "typealias" @font-lock-keyword-face)
-       [
-        (class_modifier)
+       [(class_modifier)
         (member_modifier)
         (function_modifier)
         (property_modifier)
@@ -160,27 +157,30 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
         (inheritance_modifier)
         ] @font-lock-keyword-face
 
-       (companion_object "companion" @font-lock-keyword-face)
-       (function_declaration "fun" @font-lock-keyword-face)
+       ["break"
+        "break@"
+        "companion"
+        "continue"
+        "continue@"
+        "do"
+        "else"
+        "fun"
+        "if"
+        "in"
+        "return"
+        "return@"
+        "throw"
+        "when"
+        "while"
+        "try"
+        "catch"
+        "finally"
+        "is"
+        ] @font-lock-keyword-face
 
-       (jump_expression ["throw" "return" "return@" "continue" "continue@" "break" "break@"] @font-lock-keyword-face)
-
-       ["if" "else"] @font-lock-keyword-face
-       (when_expression ["when"] @font-lock-keyword-face)
-       (for_statement "for" @font-lock-keyword-face)
-       (while_statement "while" @font-lock-keyword-face)
-       (do_while_statement ["do" "while"] @font-lock-keyword-face)
-
-       ["in" "throw"] @font-lock-keyword-face
+       "!is" @kotlin-ts-mode--fontify-not-is
 
        (infix_expression (simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "to"))
-
-       (try_expression "try" @font-lock-keyword-face)
-       (catch_block "catch" @font-lock-keyword-face)
-       (finally_block "finally" @font-lock-keyword-face)
-
-       "is" @font-lock-keyword-face
-       "!is" @kotlin-ts-mode--fontify-not-is
 
        (prefix_expression "!" @font-lock-negation-char-face))
 
