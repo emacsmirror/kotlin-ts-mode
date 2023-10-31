@@ -31,6 +31,24 @@ fun bar2() {
     )")
   )
 
+(ert-deftest kotlin-ts-mode--indent-lambdas ()
+  "Test that lambdas are indented correctly."
+  (kotlin-ts-mode--test-indentation "foo.map { value ->
+value + 1
+}"
+                                    "foo.map { value ->
+    value + 1
+}")
+  (kotlin-ts-mode--test-indentation "foo.map {
+value ->
+value + 1
+}"
+                                    "foo.map {
+    value ->
+    value + 1
+}")
+  )
+
 (defun kotlin-ts-mode--test-indentation (unindented indented)
   "Test that after indentation, UNINDENTED looks like INDENTED."
   (with-temp-buffer
