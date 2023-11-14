@@ -179,7 +179,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
         "while"
         ] @font-lock-keyword-face
 
-       "!is" @kotlin-ts-mode--fontify-not-is
+       ["!is" "!in"] @kotlin-ts-mode--fontify-not-is
 
        (infix_expression (simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "to"))
 
