@@ -187,7 +187,8 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
      :language 'kotlin
      :feature 'comment
-     '([(line_comment) (multiline_comment) (shebang_line)] @font-lock-comment-face)
+     '(((multiline_comment) @font-lock-doc-face (:match "^/\\*\\*" @font-lock-doc-face))
+       [(line_comment) (multiline_comment) (shebang_line)] @font-lock-comment-face)
 
      :language 'kotlin
      :feature 'string
