@@ -134,7 +134,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
        ["val" "var" "enum" "class" "object" "interface"] @font-lock-keyword-face
 
-       ["package" "import" "as"] @font-lock-keyword-face
+       ["package" "import" "as" "as?"] @font-lock-keyword-face
 
        ["by"
         "constructor"
