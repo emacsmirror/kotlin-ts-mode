@@ -335,7 +335,11 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
      :language 'kotlin
      :feature 'variable
-     '((simple_identifier) @font-lock-variable-name-face
+     '((import_header (identifier (simple_identifier) @font-lock-constant-face
+                                  (:match "^[A-Z_][A-Z_0-9]*$" @font-lock-constant-face)))
+       (import_header (identifier (simple_identifier) @font-lock-type-face
+                                  (:match "^[A-Z]" @font-lock-type-face)))
+       (simple_identifier) @font-lock-variable-name-face
        (interpolated_identifier) @font-lock-variable-name-face))))
 
 (defconst kotlin-ts-mode--treesit-indent-rules
