@@ -49,6 +49,16 @@ value + 1
 }")
   )
 
+(ert-deftest kotlin-ts-mode--indent-function-parameters ()
+  "Test that function parameters are indented correctly."
+  (kotlin-ts-mode--test-indentation "fun foo(
+bar: String,
+) {}"
+                                    "fun foo(
+    bar: String,
+) {}")
+  )
+
 (defun kotlin-ts-mode--test-indentation (unindented indented)
   "Test that after indentation, UNINDENTED looks like INDENTED."
   (with-temp-buffer

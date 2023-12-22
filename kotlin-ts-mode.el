@@ -354,6 +354,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        ((parent-is "control_structure_body") parent-bol ,offset)
        ((parent-is "finally_block") parent-bol ,offset)
        ((parent-is "function_body") parent-bol ,offset)
+       ((parent-is "function_value_parameters") parent-bol ,offset)
        ((parent-is "lambda_literal") parent-bol ,offset)
        ((parent-is "primary_constructor") parent-bol ,offset)
        ((parent-is "secondary_constructor") parent-bol ,offset)
