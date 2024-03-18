@@ -471,16 +471,28 @@ If PROJECT is nil, run in root project."
        (mapcar #'shell-quote-argument args)
        " ")))))
 
+(defun kotlin-ts-mode--path-chunk-to-gradle-project (chunk)
+  "Convert given CHUNK to a Gradle project name.
+
+For example:
+foo --> foo
+foo/bar --> foo:bar"
+  (string-replace "/" ":" (string-remove-suffix "/" chunk)))
+
 (defun kotlin-ts-mode--get-subproject-name ()
   "Determine the name of the subproject of the current buffer.
 Return nil if root project.
 
-We use a very simple heuristic here and just look for the closest
-build.gradle.kts file and use its directory's name.  We do not
-support custom project names."
-  (let ((gradle-dir (locate-dominating-file (buffer-file-name) "build.gradle.kts")))
-    (when (and gradle-dir (not (string-equal gradle-dir (project-root (project-current)))))
-      (file-name-nondirectory (directory-file-name gradle-dir)))))
+We use a simple heuristic here: we compare the location of the
+closest `build.gradle.kts' file with the root of the project and
+treat that difference as the subproject name. We do not support
+custom project names."
+  (let ((root-directory (project-root (project-current)))
+        (gradle-dir (locate-dominating-file (buffer-file-name) "build.gradle.kts")))
+    (cond
+     ((not gradle-dir) nil)
+     ((string-equal gradle-dir root-directory) nil)
+     (t (kotlin-ts-mode--path-chunk-to-gradle-project (string-remove-prefix root-directory gradle-dir))))))
 
 (defun kotlin-ts-mode-run-current-test-class ()
   "Run the current test class."
