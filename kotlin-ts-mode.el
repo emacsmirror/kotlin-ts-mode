@@ -464,6 +464,7 @@ If PROJECT is nil, run in root project."
     (compile
      (concat
       command
+      " --console=plain"
       " "
       qualified-task
       " "
