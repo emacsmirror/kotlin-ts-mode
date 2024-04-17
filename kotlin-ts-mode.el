@@ -283,11 +283,15 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
        (call_expression (simple_identifier) @font-lock-builtin-face
                         (:equal @font-lock-builtin-face "listOf"))
        (call_expression (simple_identifier) @font-lock-builtin-face
+                        (:equal @font-lock-builtin-face "sequenceOf"))
+       (call_expression (simple_identifier) @font-lock-builtin-face
                         (:equal @font-lock-builtin-face "emptyMap"))
        (call_expression (simple_identifier) @font-lock-builtin-face
                         (:equal @font-lock-builtin-face "emptySet"))
        (call_expression (simple_identifier) @font-lock-builtin-face
                         (:equal @font-lock-builtin-face "emptyList"))
+       (call_expression (simple_identifier) @font-lock-builtin-face
+                        (:equal @font-lock-builtin-face "emptySequence"))
        (call_expression (simple_identifier) @font-lock-builtin-face
                         (:equal @font-lock-builtin-face "mutableMapOf"))
        (call_expression (simple_identifier) @font-lock-builtin-face
