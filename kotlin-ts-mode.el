@@ -460,7 +460,7 @@ If PROJECT is nil, run in root project."
         (exec-path exec-path)
         (command "gradle")
         (compilation-buffer-name-function #'kotlin-ts-mode--compilation-buffer-name-function)
-        (qualified-task (if project (concat ":" project ":" task) task)))
+        (qualified-task (if project (concat ":" project ":" task) (concat ":" task))))
     (when (kotlin-ts-mode--in-gradle-project-p)
       (setq default-directory (project-root (project-current))
             command "./gradlew"
