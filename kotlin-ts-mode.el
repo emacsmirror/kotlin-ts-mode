@@ -533,6 +533,18 @@ custom project names."
           class-name
           function-name))))))
 
+;; Find Files
+(defvar kotlin-ts-mode--find-sibling-rules
+  ;; '(("\\\\([^/]+\\\\)\\\\.kt\\"))
+  (list
+   (list (rx "main/" (group (+ not-newline) "/") (group (+ (not "/"))) ".kt") "test/\\1\\2Test.kt")
+   (list (rx "test/" (group (+ not-newline) "/") (group (+ (not "/"))) "Test.kt") "main/\\1\\2.kt"))
+  "Rules for finding sibling files as defined by `find-sibling-rules'.
+
+Current rules are:
+1. From implementation to corresponding test
+2. From test to corresponding implementation")
+
 ;;;###autoload
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
@@ -569,6 +581,9 @@ custom project names."
     ;; Imenu
     (setq-local imenu-create-index-function #'kotlin-ts-mode--imenu)
     (setq-local which-func-functions nil)
+
+    ;; Find Files
+    (setq-local find-sibling-rules kotlin-ts-mode--find-sibling-rules)
 
     (treesit-major-mode-setup)
 
