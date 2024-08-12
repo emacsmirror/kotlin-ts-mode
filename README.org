@@ -9,7 +9,7 @@ In order to use ~tree-sitter~, you must have a grammar for the language. In this
 
 #+BEGIN_SRC emacs-lisp
   (require 'treesit)
-  (add-to-list 'treesit-language-source-alist '(mermaid . ("https://github.com/fwcd/tree-sitter-kotlin")))
+  (add-to-list 'treesit-language-source-alist '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
 #+END_SRC
 
 Then you can run ~M-x treesit-install-language-grammar~.
