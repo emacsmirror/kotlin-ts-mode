@@ -44,7 +44,11 @@
 (declare-function treesit-search-subtree "treesit.c")
 (declare-function treesit-thing-at-point "treesit.c")
 
-(defvar kotlin-ts-mode-indent-offset 4)
+(defcustom kotlin-ts-mode-indent-offset 4
+  "Number of spaces for each indentation step in `kotlin-ts-mode'."
+  :type 'natnum
+  :safe #'natnump
+  :group 'kotlin)
 
 (defvar kotlin-ts-mode-syntax-table
   (let ((st (make-syntax-table)))
