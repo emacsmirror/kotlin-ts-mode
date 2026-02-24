@@ -106,17 +106,6 @@ This function is heavily inspired by `js--fontify-template-string'."
     ;; If we get here, then the string has no children: it's just a normal string
     (treesit-fontify-with-override (treesit-node-start node) (treesit-node-end node) 'font-lock-string-face override)))
 
-(defun kotlin-ts-mode--fontify-not-is (node override start end &rest _)
-  "Fontify the '!is' string inside of type checks.
-
-See `treesit-font-lock-rules' for more details.  NODE is the string node.  START
-and END mark the region to be fontified.  OVERRIDE is the override flag."
-  (let ((start-pos (treesit-node-start node)))
-    (treesit-fontify-with-override
-     start-pos (1+ start-pos) 'font-lock-negation-char-face override start end)
-    (treesit-fontify-with-override
-     (1+ start-pos) (+ start-pos 3) 'font-lock-keyword-face override start end)))
-
 ;; Based on https://github.com/fwcd/tree-sitter-kotlin/pull/50
 (defvar kotlin-ts-mode--treesit-settings
   (when (treesit-available-p)
@@ -183,8 +172,6 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
         "when"
         "while"
         ] @font-lock-keyword-face
-
-       ["!is" "!in"] @kotlin-ts-mode--fontify-not-is
 
        (infix_expression (simple_identifier) @font-lock-keyword-face (:equal @font-lock-keyword-face "to"))
 
