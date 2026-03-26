@@ -4,7 +4,7 @@
 
 ;; Author: Alex Figl-Brick <alex@alexbrick.me>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "29.1"))
+;; Package-Requires: ((emacs "30.1"))
 ;; URL: https://gitlab.com/bricka/emacs-kotlin-ts-mode
 
 ;; This program is free software: you can redistribute it and/or
@@ -539,6 +539,8 @@ Current rules are:
 ;;;###autoload
 (define-derived-mode kotlin-ts-mode prog-mode "Kotlin"
   "Major mode for editing Kotlin using tree-sitter."
+  :syntax-table kotlin-ts-mode-syntax-table
+
   (when (treesit-ready-p 'kotlin)
     (treesit-parser-create 'kotlin)
 
@@ -567,9 +569,9 @@ Current rules are:
     ;; Find Files
     (setq-local find-sibling-rules kotlin-ts-mode--find-sibling-rules)
 
-    (treesit-major-mode-setup)
+    (treesit-major-mode-setup)))
 
-    :syntax-table kotlin-ts-mode-syntax-table))
+(derived-mode-add-parents 'kotlin-ts-mode '(kotlin-mode))
 
 (provide 'kotlin-ts-mode)
 ;;; kotlin-ts-mode.el ends here
