@@ -188,10 +188,6 @@ This function is heavily inspired by `js--fontify-template-string'."
        (string_literal) @kotlin-ts-mode--fontify-string)
 
      :language 'kotlin
-     :feature 'string
-     '((string_literal ["$" "${" "}"] @font-lock-builtin-face))
-
-     :language 'kotlin
      :feature 'escape-sequence
      :override t
      '((character_escape_seq) @font-lock-escape-face)
