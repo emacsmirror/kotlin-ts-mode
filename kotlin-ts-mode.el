@@ -78,7 +78,7 @@
     st))
 
 (defconst kotlin-ts-mode--string-node-child-no-fontify
-  '("interpolated_expression" "interpolated_identifier" "${" "}" "$")
+  '("interpolated_expression" "interpolated_identifier" "interpolation_identifier_start" "interpolation_expression_start" "interpolation_expression_end")
   "Node types in a string that should not be fontified by the string face.")
 
 (defun kotlin-ts-mode--fontify-string (node override start end &rest _)
@@ -185,7 +185,13 @@ This function is heavily inspired by `js--fontify-template-string'."
      :language 'kotlin
      :feature 'string
      '((character_literal) @font-lock-string-face
-       (string_literal) @kotlin-ts-mode--fontify-string)
+       (string_literal) @kotlin-ts-mode--fontify-string
+       (string_literal
+        [
+         (interpolation_identifier_start)
+         (interpolation_expression_start)
+         (interpolation_expression_end)
+         ] @font-lock-builtin-face))
 
      :language 'kotlin
      :feature 'escape-sequence
