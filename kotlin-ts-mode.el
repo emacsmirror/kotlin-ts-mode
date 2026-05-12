@@ -562,6 +562,7 @@ Current rules are:
                                                  (escape-sequence function property)))
 
     ;; Indent
+    (setq-local editorconfig-indent-size-vars '(kotlin-ts-mode-indent-offset))
     (setq-local treesit-simple-indent-rules kotlin-ts-mode--treesit-indent-rules)
 
     ;; Imenu
